@@ -1,19 +1,23 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "wordpress-curated.fullname" . }}
-  labels:
-    app.kubernetes.io/name: {{ include "wordpress-curated.name" . }}
-    helm.sh/chart: {{ include "wordpress-curated.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  name: wordpress
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
   selector:
-    app.kubernetes.io/name: {{ include "wordpress-curated.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app: {{ .Release.Name }}-wordpress
+  ports:
+  - protocol: TCP
+    port: 80
+    name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+spec:
+  selector:
+    app: {{ .Release.Name }}-mariadb
+  ports:
+  - protocol: TCP
+    port: 3306
+    name: db

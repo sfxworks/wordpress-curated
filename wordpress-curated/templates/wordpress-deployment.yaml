@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-wordpress
+  labels:
+    app: {{ .Release.Name }}-wordpress
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-wordpress
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-wordpress
+    spec:
+      {{ if .Values.region }}
+      nodeSelector:
+        region: {{ .Values.region }}
+      {{ end }}
+      volumes:
+      - name: wordpress
+        persistentVolumeClaim:
+         claimName: {{ .Release.Name }}-wp-pvc
+      containers:
+      - name: wordpress
+        image: docker.io/wordpress
+        ports:
+        - containerPort: 80
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: mariadb
+        - name: WORDPRESS_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: user
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: pass
+        - name: WORDPRESS_DB_NAME
+          value: {{ .Release.Name | snakecase }}
+        volumeMounts:
+        - mountPath: "/var/www/html"
+          name: wordpress

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment #TODO replace with https://vitess.io/
+metadata:
+  name: {{ .Release.Name }}-mariadb
+  labels:
+    app: {{ .Release.Name }}-mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-mariadb
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-mariadb
+    spec:
+      {{ if .Values.region }}
+      nodeSelector:
+        region: {{ .Values.region }}
+      {{ end }}
+      #volumes:
+      #- name: database
+      #  persistentVolumeClaim:
+      #   claimName: {{ .Release.Name }}-db-pvc
+      containers:
+      - name: mariadb
+        image: docker.io/mariadb
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: pass
+        - name: MYSQL_DATABASE
+          value: {{ .Release.Name | snakecase }}
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: rootpass
+        #volumeMounts:
+        #- mountPath: "/var/lib/mysql"
+        #  name: database

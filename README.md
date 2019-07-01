@@ -1,10 +1,10 @@
 # Wordpress Curated helm deployment
+Yes of course I recorded myself getting the basic foundation for it up in under 4 hours! https://youtu.be/TWA5-TELNkU
 
 # tl;dr
 `helm install  .\wordpress-curated\ --set hostname=yourdomain.example.com`
 
 You'll be greeted with a language selection and skip to define your user credentais as the database credentials are pregenerated. 
-
 
 # TODO 
 
